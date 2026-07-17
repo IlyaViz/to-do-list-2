@@ -1,0 +1,44 @@
+# 1. Гігантські текстові файли (Головні винуватці 300+ сторінок)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+poetry.lock
+
+# 2. Глобальне ігнорування залежностей (без прив'язки до папки)
+node_modules/
+.venv/
+venv/
+env/
+
+# 3. Кеші та збірки
+.pytest_cache/
+__pycache__/
+.next/
+build/
+dist/
+out/
+.swc/
+
+# 4. Бази даних та логи
+*.sqlite3
+*.db
+*.log
+
+# 5. Медіа, шрифти та графіка
+*.svg
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.woff
+*.woff2
+*.ttf
+
+# 6. Гіт та конфіги середовища
+.git/
+.env
+
+# 7. Згенеровані системні файли
+.DS_Store
+*.pyc

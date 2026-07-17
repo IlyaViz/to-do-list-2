@@ -1,12 +1,11 @@
-from functools import lru_cache
-from pathlib import Path
-
 from pydantic import model_validator
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from src.core.paths import DOTENV_PATH, DOTENV_TEST_PATH
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
+
+ENV_FILES = tuple(path for path in (DOTENV_PATH, DOTENV_TEST_PATH) if path.exists())
 
 
 class Settings(BaseSettings):
@@ -19,9 +18,14 @@ class Settings(BaseSettings):
     postgres_user: str
     postgres_password: str
     database_driver: str = "postgresql+psycopg"
+    secret_key: str
+    access_token_expire_minutes: int
+    refresh_token_expire_days: int
+    refresh_token_cookie_name: str = "refresh_token"
+    run_migrations_on_startup: bool
 
     model_config = SettingsConfigDict(
-        env_file=PROJECT_ROOT / ".env",
+        env_file=ENV_FILES,
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -31,6 +35,18 @@ class Settings(BaseSettings):
         if self.database_url:
             return self
 
+        if not all(
+            [
+                self.postgres_host,
+                self.postgres_db,
+                self.postgres_user,
+                self.postgres_password,
+            ]
+        ):
+            raise ValueError(
+                "database_url or postgres connection settings are required"
+            )
+
         self.database_url = (
             f"{self.database_driver}://{self.postgres_user}:{self.postgres_password}"
             f"@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
@@ -38,7 +54,6 @@ class Settings(BaseSettings):
         return self
 
 
-@lru_cache
 def get_settings() -> Settings:
     return Settings()
 

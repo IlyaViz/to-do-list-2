@@ -1,19 +1,8 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter
 
-from src.core.database import get_db
-
+from src.api.auth import router as auth_router
+from src.api.health import router as health_router
 
 router = APIRouter()
-
-
-@router.get("/")
-async def read_root() -> dict[str, str]:
-    return {"message": "To-Do API"}
-
-
-@router.get("/health/db")
-async def check_database(db: AsyncSession = Depends(get_db)) -> dict[str, str]:
-    await db.execute(text("SELECT 1"))
-    return {"status": "ok", "database": "reachable"}
+router.include_router(auth_router)
+router.include_router(health_router)
