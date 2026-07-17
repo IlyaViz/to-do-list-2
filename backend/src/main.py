@@ -11,6 +11,7 @@ from src.core.migrations import run_migrations
 async def lifespan(app: FastAPI):
     if settings.run_migrations_on_startup:
         run_migrations()
+        
     yield
 
 

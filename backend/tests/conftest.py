@@ -7,6 +7,7 @@ from src.core.database import Base, SessionLocal, engine
 from src.core.security import hash_password
 from src.main import app
 from src.models.user import User
+from src.services.auth_service import create_access_token
 
 
 def create_tables() -> None:
@@ -38,7 +39,7 @@ def seed_user():
     async def _seed_user(email: str, password: str) -> User:
         async with SessionLocal() as db:
             user = User(email=email, hashed_password=hash_password(password))
-            
+
             db.add(user)
             await db.commit()
             await db.refresh(user)
@@ -49,3 +50,21 @@ def seed_user():
         return asyncio.run(_seed_user(email, password))
 
     return _create_user
+
+
+@pytest.fixture()
+def auth_headers(seed_user):
+    user = seed_user("owner@example.com", "Password123!")
+
+    token = create_access_token(str(user.id))
+
+    return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture()
+def hacker_headers(seed_user):
+    user = seed_user("hacker@example.com", "Password123!")
+
+    token = create_access_token(str(user.id))
+
+    return {"Authorization": f"Bearer {token}"}
