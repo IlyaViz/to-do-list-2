@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     refresh_token_expire_days: int
     refresh_token_cookie_name: str = "refresh_token"
     run_migrations_on_startup: bool
+    next_origin: str
 
     model_config = SettingsConfigDict(
         env_file=ENV_FILES,
