@@ -1,4 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import type { AuthResponse } from "@/schemas/authSchema";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
@@ -46,11 +47,12 @@ apiClient.interceptors.response.use(
       _retry?: boolean;
     };
 
+    const isAuthRoute = originalRequest.url?.includes("/auth/");
+
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      originalRequest.url !== "/auth/login" &&
-      originalRequest.url !== "/auth/refresh"
+      !isAuthRoute
     ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -67,7 +69,7 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const { data } = await axios.post(
+        const { data } = await axios.post<AuthResponse>(
           `${API_URL}/auth/refresh`,
           {},
           { withCredentials: true },
@@ -77,7 +79,6 @@ apiClient.interceptors.response.use(
         processQueue(null, data.access_token);
 
         originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
-
         return apiClient(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
@@ -86,7 +87,6 @@ apiClient.interceptors.response.use(
         if (typeof window !== "undefined") {
           window.location.href = "/login";
         }
-
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

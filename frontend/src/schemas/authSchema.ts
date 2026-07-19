@@ -13,3 +13,8 @@ export const registerSchema = loginSchema;
 
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
+
+export interface AuthResponse {
+  access_token: string;
+  token_type: string;
+}
