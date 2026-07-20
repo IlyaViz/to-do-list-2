@@ -2,12 +2,15 @@ import asyncio
 
 import pytest
 from fastapi.testclient import TestClient
+from src.core.config import settings
 
 from src.core.database import Base, SessionLocal, engine
 from src.core.security import hash_password
 from src.main import app
 from src.models.user import User
 from src.services.auth_service import create_access_token
+
+settings.run_migrations_on_startup = False
 
 
 def create_tables() -> None:
