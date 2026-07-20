@@ -1,0 +1,18 @@
+databases:
+  - name: todo-db
+    plan: free
+
+services:
+  - type: web
+    name: todo-backend
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile.prod
+    plan: free
+
+  - type: web
+    name: todo-frontend
+    runtime: docker
+    rootDir: frontend
+    dockerfilePath: ./Dockerfile.prod
+    plan: free
