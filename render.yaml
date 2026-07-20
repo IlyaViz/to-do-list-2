@@ -9,6 +9,7 @@ services:
     rootDir: backend
     dockerfilePath: ./Dockerfile.prod
     plan: free
+    autoDeployTrigger: checksPass
 
   - type: web
     name: todo-frontend
@@ -16,3 +17,4 @@ services:
     rootDir: frontend
     dockerfilePath: ./Dockerfile.prod
     plan: free
+    autoDeployTrigger: checksPass
