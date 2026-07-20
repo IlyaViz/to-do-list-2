@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     refresh_token_cookie_name: str = "refresh_token"
     run_migrations_on_startup: bool
     next_origin: str
+    cookie_secure: bool = True
 
     model_config = SettingsConfigDict(
         env_file=ENV_FILES,

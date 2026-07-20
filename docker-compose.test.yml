@@ -1,11 +1,8 @@
 services:
   test-db:
     image: postgres:16-alpine
-    restart: unless-stopped
     env_file:
       - .env.test
-    ports:
-      - "5433:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
       interval: 10s
@@ -21,9 +18,32 @@ services:
         condition: service_healthy
     env_file:
       - .env.test
-    environment:
-      POSTGRES_HOST: test-db
-      POSTGRES_PORT: 5432
     command: ["pytest"]
-    volumes:
-      - ./backend:/app
+
+  test-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    depends_on:
+      test-db:
+        condition: service_healthy
+    env_file:
+      - .env.test
+
+  test-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    depends_on:
+      - test-backend
+    env_file:
+      - .env.test
+
+  e2e-tests:
+    build:
+      context: ./e2e
+      dockerfile: Dockerfile.dev
+    depends_on:
+      - test-frontend
+    env_file:
+      - .env.test

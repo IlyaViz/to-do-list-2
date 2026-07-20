@@ -100,7 +100,7 @@ export function TaskForm({
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(handleSubmit)}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} noValidate>
           <FieldGroup className="py-4">
             <Controller
               name="title"

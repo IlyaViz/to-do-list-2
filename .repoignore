@@ -16,6 +16,9 @@ dist/
 out/
 .swc/
 
+playwright-report/
+test-results/
+
 *.sqlite3
 *.db
 *.log
