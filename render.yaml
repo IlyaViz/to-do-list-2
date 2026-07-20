@@ -10,9 +10,44 @@ services:
     dockerfilePath: ./Dockerfile.prod
     plan: free
 
+    envVars:
+      - key: POSTGRES_HOST
+        sync: false
+
+      - key: POSTGRES_PORT
+        value: "5432"
+
+      - key: POSTGRES_DB
+        sync: false
+
+      - key: POSTGRES_USER
+        sync: false
+
+      - key: POSTGRES_PASSWORD
+        sync: false
+
+      - key: SECRET_KEY
+        sync: false
+
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "15"
+
+      - key: REFRESH_TOKEN_EXPIRE_DAYS
+        value: "7"
+
+      - key: RUN_MIGRATIONS_ON_STARTUP
+        value: "true"
+
+      - key: NEXT_ORIGIN
+        sync: false
+
   - type: web
     name: todo-frontend
     runtime: docker
     rootDir: frontend
     dockerfilePath: ./Dockerfile.prod
     plan: free
+
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        sync: false
