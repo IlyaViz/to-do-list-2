@@ -1,4 +1,11 @@
-import { Search, Filter, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import {
+  Search,
+  Filter,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
+  Tag,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -6,6 +13,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu";
 
@@ -16,6 +24,9 @@ interface TaskToolbarProps {
   onFilterChange: (status: "all" | "done" | "undone") => void;
   sortOrder: "none" | "desc" | "asc";
   onSortCycle: () => void;
+  categories: string[];
+  filterCategory: string;
+  onFilterCategoryChange: (category: string) => void;
 }
 
 export function TaskToolbar({
@@ -25,6 +36,9 @@ export function TaskToolbar({
   onFilterChange,
   sortOrder,
   onSortCycle,
+  categories,
+  filterCategory,
+  onFilterCategoryChange,
 }: TaskToolbarProps) {
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -38,18 +52,18 @@ export function TaskToolbar({
         />
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
               <Button
                 variant="outline"
-                className="w-27.5 justify-between capitalize"
+                className="w-28 justify-between capitalize"
               ></Button>
             }
           >
             <span className="flex items-center gap-2">
-              <Filter className="size-4" />
+              <Filter className="size-4 shrink-0" />
               {filterStatus}
             </span>
           </DropdownMenuTrigger>
@@ -67,10 +81,47 @@ export function TaskToolbar({
           </DropdownMenuContent>
         </DropdownMenu>
 
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="outline"
+                className="w-36 justify-between"
+              ></Button>
+            }
+          >
+            <span className="flex items-center gap-2 truncate">
+              <Tag className="size-4 shrink-0" />
+              <span className="truncate">
+                {filterCategory === "all" ? "All Categories" : filterCategory}
+              </span>
+            </span>
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent
+            align="end"
+            className="max-h-64 overflow-y-auto w-40"
+          >
+            <DropdownMenuItem onClick={() => onFilterCategoryChange("all")}>
+              All Categories
+            </DropdownMenuItem>
+            {categories.length > 0 && <DropdownMenuSeparator />}
+
+            {categories.map((cat) => (
+              <DropdownMenuItem
+                key={cat}
+                onClick={() => onFilterCategoryChange(cat)}
+              >
+                {cat}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         <Button
           variant="outline"
           onClick={onSortCycle}
-          className="w-27.5 justify-between"
+          className="w-28 justify-between shrink-0"
         >
           Priority
           {sortOrder === "none" ? (

@@ -24,7 +24,18 @@ export default function DashboardPage() {
   const [filterStatus, setFilterStatus] = useState<"all" | "done" | "undone">(
     "all",
   );
+  const [filterCategory, setFilterCategory] = useState<string>("all");
   const [sortOrder, setSortOrder] = useState<"none" | "desc" | "asc">("none");
+
+  const availableCategories = useMemo(() => {
+    if (!taskQuery.data) return [];
+
+    const cats = taskQuery.data
+      .map((t) => t.category)
+      .filter((c) => c && c.trim() !== "") as string[];
+
+    return Array.from(new Set(cats)).sort();
+  }, [taskQuery.data]);
 
   const { parents, children, orphanedChildren } = useMemo(() => {
     let result = [...(taskQuery.data || [])];
@@ -33,6 +44,18 @@ export default function DashboardPage() {
       result = result.filter((t) => t.is_done);
     } else if (filterStatus === "undone") {
       result = result.filter((t) => !t.is_done);
+    }
+
+    if (filterCategory !== "all") {
+      const matchedTasks = result.filter((t) => t.category === filterCategory);
+
+      const matchedParentIds = new Set(
+        matchedTasks.map((t) => t.parent_id).filter(Boolean),
+      );
+
+      result = result.filter(
+        (t) => matchedTasks.includes(t) || matchedParentIds.has(t.id),
+      );
     }
 
     if (searchQuery.trim()) {
@@ -69,11 +92,12 @@ export default function DashboardPage() {
       children: childrenList,
       orphanedChildren: orphansList,
     };
-  }, [taskQuery.data, filterStatus, searchQuery, sortOrder]);
+  }, [taskQuery.data, filterStatus, filterCategory, searchQuery, sortOrder]);
 
   const handleLogout = async () => {
     try {
       await authService.logout();
+
       router.push("/login");
     } catch (error) {
       console.error(error);
@@ -148,7 +172,7 @@ export default function DashboardPage() {
           </div>
         </header>
 
-        <main className="flex min-h-[400px] flex-col gap-4 rounded-xl bg-card p-4 shadow-sm ring-1 ring-foreground/10">
+        <main className="flex min-h-100 flex-col gap-4 rounded-xl bg-card p-4 shadow-sm ring-1 ring-foreground/10">
           <TaskToolbar
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
@@ -156,6 +180,9 @@ export default function DashboardPage() {
             onFilterChange={setFilterStatus}
             sortOrder={sortOrder}
             onSortCycle={cycleSortOrder}
+            categories={availableCategories}
+            filterCategory={filterCategory}
+            onFilterCategoryChange={setFilterCategory}
           />
 
           <div className="h-px bg-border" />
@@ -167,11 +194,17 @@ export default function DashboardPage() {
           ) : parents.length === 0 && children.length === 0 ? (
             <div className="flex flex-1 flex-col items-center justify-center space-y-3">
               <p className="text-muted-foreground">No tasks found.</p>
-              {!searchQuery && filterStatus === "all" && (
-                <Button variant="outline" size="sm" onClick={handleOpenNewTask}>
-                  Create your first task
-                </Button>
-              )}
+              {!searchQuery &&
+                filterStatus === "all" &&
+                filterCategory === "all" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleOpenNewTask}
+                  >
+                    Create your first task
+                  </Button>
+                )}
             </div>
           ) : (
             <div className="space-y-3">
